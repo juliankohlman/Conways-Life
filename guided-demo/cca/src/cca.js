@@ -61,7 +61,7 @@ class CCA {
    * Randomize the cca grid
    */
   randomize() {
-    for (let row = 0; row < this.height; row++) {
+    for (let row = 0; row < this.width; row++) {
       for (let col = 0; col < this.height; col++) {
         this.buffer[this.currentBufferIndex][row][col] =
           (Math.random() * MODULO) | 0;
@@ -81,7 +81,9 @@ class CCA {
     function hasInfectionsNeighbor(row, col) {
       const nextValue =
         (this.buffer[this.currentBufferIndex][row][col] + 1) % MODULO;
-
+        // tweak this value to impact rules below
+        // (this.buffer[this.currentBufferIndex][row][col] + 1) % MODULO;
+        // also eliminate rules to change directions
       //West
       if (col > 0) {
         if (currentBuffer[row][col - 1] === nextValue) {
@@ -115,7 +117,7 @@ class CCA {
       return false;
     }
 
-    for (let row = 0; row < this.height; row++) {
+    for (let row = 0; row < this.width; row++) {
       for (let col = 0; col < this.height; col++) {
         if (hasInfectionsNeighbor.call(this, row, col)) {
           //console.log("changing color");

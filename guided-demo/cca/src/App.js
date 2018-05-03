@@ -4,13 +4,13 @@ import './App.css';
 
 const COLORS = [
   [0, 0, 0],
-  [0x00, 0x00, 0x8b],
-  [0x5f, 0, 0x8f],
-  [0, 0, 0xff],
+  [0x28, 0xab, 0xe2],
+  [0x66, 0x0c, 0xe8],
+  [0xff, 0, 0],
   [0, 0x5f, 0x7f],
-  [0x5f, 0x8f, 0x2f],
-  [0x1f, 0xff, 0x7f],
-  [0xff, 0x5f, 0x7f]
+  [0xe8, 0x90, 0x0c],
+  [0xed, 0xff, 0x0d],
+  [0xff, 0x5f, 0x7f],
 ];
 
 /**
@@ -59,17 +59,17 @@ class CCACanvas extends Component {
 
     // blueComponent = imageData.data[((50 * (imageData.width * 4)) + (200 * 4)) + 2];
 
-    for (let row = 0; row < height; row++) {
+    for (let row = 0; row < width; row++) {
       for (let col = 0; col < height; col++) {
         let ccaGrid = this.cca.getCells();
         let index = (row * width + col) * 4;
         let color = ccaGrid[row][col];
         //change red value
-        imageData.data[index + 0] = COLORS[color][0];
+        imageData.data[index + 0] = COLORS[color][1];
         //change green value
-        imageData.data[index + 1] = COLORS[color][1];
+        imageData.data[index + 1] = COLORS[color][6];
         //change blue value
-        imageData.data[index + 2] = COLORS[color][2];
+        imageData.data[index + 2] = COLORS[color][5];
 
         imageData.data[index + 3] = 0xff; //alpha channel solid
       }

@@ -2,14 +2,7 @@ import React, { Component } from 'react';
 import Life from './life';
 import './App.css';
 
-/**
- * Life canvas
- */
 class LifeCanvas extends Component {
-
-  /**
-   * Constructor
-   */
   constructor(props) {
     super(props);
 
@@ -17,62 +10,65 @@ class LifeCanvas extends Component {
     this.life.randomize();
   }
 
-  /**
-   * Component did mount
-   */
   componentDidMount() {
-    requestAnimationFrame(() => {this.animFrame()});
+    requestAnimationFrame(() => {
+      this.handleAnimation();
+    });
   }
 
-  /**
-   * Handle an animation frame
-   */
-  animFrame() {
-    //
-    // !!!! IMPLEMENT ME !!!!
-    //
+  handleAnimation() {
+    let width = this.props.width;
+    let height = this.props.height;
 
-    // Request another animation frame
-    // Update life and get cells
-    // Get canvas framebuffer, a packed RGBA array
-    // Convert the cell values into white or black for the canvas
-    // Put the new image data back on the canvas
-    // Next generation of life
+    let cells = this.life.getCells();
+    let canvas = this.refs.canvas;
+    let ctx = canvas.getContext('2d');
+    let imageData = ctx.getImageData(0, 0, width, height);
+
+    for (let col = 0; col < height; col += 1) {
+      for (let row = 0; row < width; row += 1) {
+        let index = (col * width + row) * 4;
+
+        let status = cells[col][row];
+        let color = status === 0 ? 0x00 : 0xff;
+
+        imageData.data[index + 0] = color; // Red channel
+        imageData.data[index + 1] = color; // Green channel
+        imageData.data[index + 2] = color; // Blue channel
+        imageData.data[index + 3] = 0xff; // Alpha channel, 0xff = opaque
+      }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+
+    this.life.step();
+
+    requestAnimationFrame(() => this.handleAnimation());
+
   }
 
-  /**
-   * Render
-   */
   render() {
-    return <canvas ref="canvas" width={this.props.width} height={this.props.height} />
+    return (
+      <canvas
+        ref="canvas"
+        width={this.props.width}
+        height={this.props.height}
+      />
+    );
   }
 }
 
-/**
- * Life holder component
- */
 class LifeApp extends Component {
-
-  /**
-   * Render
-   */
   render() {
     return (
       <div>
         <LifeCanvas width={400} height={300} />
       </div>
-    )
+    );
   }
 }
 
-/**
- * Outer App component
- */
 class App extends Component {
-
-  /**
-   * Render
-   */
   render() {
     return (
       <div className="App">
