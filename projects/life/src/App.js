@@ -32,10 +32,10 @@ class LifeCanvas extends Component {
         let status = cells[col][row];
         let color = status === 0 ? 0x00 : 0xff;
 
-        imageData.data[index + 0] = color; // Red channel
-        imageData.data[index + 1] = color; // Green channel
-        imageData.data[index + 2] = color; // Blue channel
-        imageData.data[index + 3] = 0xff; // Alpha channel, 0xff = opaque
+        imageData.data[index + 0] = color; // R
+        imageData.data[index + 1] = color; // G
+        imageData.data[index + 2] = color; // B
+        imageData.data[index + 3] = 0xff;  // A
       }
     }
 
@@ -43,7 +43,7 @@ class LifeCanvas extends Component {
 
     this.life.step();
 
-    requestAnimationFrame(() => this.handleAnimation());
+    // requestAnimationFrame(() => this.handleAnimation());
 
   }
 
@@ -58,24 +58,16 @@ class LifeCanvas extends Component {
   }
 }
 
-class LifeApp extends Component {
-  render() {
-    return (
-      <div>
-        <LifeCanvas width={400} height={300} />
-      </div>
-    );
-  }
-}
+const LifeApp = () => (
+  <div>
+    <LifeCanvas width={400} height={300} />
+  </div>
+);
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <LifeApp />
-      </div>
-    );
-  }
-}
+const App = () => (
+  <div className="App">
+    <LifeApp />
+  </div>
+);
 
 export default App;
