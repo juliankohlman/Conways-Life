@@ -8,10 +8,10 @@ const MODULO = 2;
  * Make a 2D array helper function
  */
 function Array2D(width, height) {
-  //NOTE:  Iterate through Array2D row first then column
-  let a = new Array(height);
+  // NOTE:  Iterate through Array2D row first then column
+  const a = new Array(height);
 
-  for (let i = 0; i < height; i++) {
+  for (let i = 0; i < height; i += 1) {
     a[i] = new Array(width);
   }
 
@@ -22,21 +22,17 @@ function Array2D(width, height) {
  * Life class
  */
 class Life {
-  /**
-   * Constructor
-   */
   constructor(width, height) {
     this.width = width;
     this.height = height;
 
-    this.currentBufferIndex = 0;
+    this.activeBufferIdx = 0;
 
-    //this.grid = Array2D(width, height);
-
+    // 2 buffers this.buffer[0] current buffer this.buffer[1] is hidden until
+    // switch occurs (active vs inactive)
     this.buffer = [Array2D(width, height), Array2D(width, height)];
 
     this.clear();
-    // !!!! IMPLEMENT ME !!!!
   }
 
   /**
@@ -45,17 +41,15 @@ class Life {
    * This should NOT be modified by the caller
    */
   getCells() {
-    // !!!! IMPLEMENT ME !!!!
-    return this.buffer[this.currentBufferIndex];
+    return this.buffer[this.activeBufferIdx];
   }
 
   /**
    * Clear the life grid
    */
   clear() {
-    // !!!! IMPLEMENT ME !!!!
-    for (let row = 0; row < this.height; row++) {
-      this.buffer[this.currentBufferIndex][row].fill(0);
+    for (let row = 0; row < this.height; row += 1) {
+      this.buffer[this.activeBufferIdx][row].fill(0);
     }
   }
 
@@ -63,12 +57,11 @@ class Life {
    * Randomize the life grid
    */
   randomize() {
-    // !!!! IMPLEMENT ME !!!!
-    for (let row = 0; row < this.height; row++) {
-      for (let col = 0; col < this.width; col++) {
-        this.buffer[this.currentBufferIndex][row][col] =
-          (Math.random() * MODULO) | 0;
-          
+    const buffer = this.buffer[this.activeBufferIdx];
+    // filling in activeBuffer with random 0s or 1s
+    for (let row = 0; row < this.height; row += 1) {
+      for (let col = 0; col < this.width; col += 1) {
+        buffer[row][col] = (Math.random() * MODULO) | 0;
       }
     }
   }
@@ -76,90 +69,65 @@ class Life {
   /**
    * Run the simulation for a single step
    */
+
   step() {
-    //console.log("stepping");
-    let backBufferIndex = this.currentBufferIndex === 0 ? 1 : 0;
-    let currentBuffer = this.buffer[this.currentBufferIndex];
-    let backBuffer = this.buffer[backBufferIndex];
+    // whichever index is not the activeBufferIdx
+    const offBufferIdx = this.activeBufferIdx === 0 ? 1 : 0;
+    const offBuffer = this.buffer[offBufferIdx];
+    const activeBuffer = this.buffer[this.activeBufferIdx];
+    // Rules of life
+    /*
+    [ To help visualize neighbors and cell movements
+      [1,0,0,0,1],
+      [0,1,0,0,0],
+      [0,0,0,0,1],
+      [0,0,0,1,0],
+      [1,0,0,0,0],
+      [0,1,0,0,1]
+    ]
+    */
+    function countOfNeighbors(row, col) {
+      let count = 0;
 
-    // life rules
-    function countTheLiving(row, col) {
-      let neighbors = 0;
+      for (let rowAdjustment = -1; rowAdjustment <= 1; rowAdjustment += 1) {
+        const rowIdx = (row + rowAdjustment);
 
-      for (let neighborRow =  - 1; neighborRow <= 1; neighborRow++) {
-        let rowPos = row + neighborRow;
-        if (rowPos < 0 || rowPos >= this.height) {
-          continue;
+        if (rowIdx < 0 || rowIdx === this.height) continue;
+
+        for (let colAdjustment = -1; colAdjustment <= 1; colAdjustment += 1) {
+          const colIdx = (col + colAdjustment);
+
+          if (colIdx < 0 || colAdjustment === this.width) continue;
+          if (colAdjustment === 0 && rowAdjustment === 0) continue;
+          count += activeBuffer[rowIdx][colIdx];
         }
-        for (let neighborCol = - 1; neighborCol <= 1; neighborCol++) {
-          let colPos = col + neighborCol;
-          if (colPos < 0 || colPos >= this.width) {
-            continue;
-          }
-
-          if (currentBuffer[rowPos][colPos] === 1) {
-            if (!(rowPos === row && colPos === col)) {
-              neighbors++;
-            }
-          }   
-        }
-        
       }
-      return neighbors;
+      return count;
     }
 
-    // function hasInfectionsNeighbor(row, col) {
-    //   const nextValue =
-    //     (this.buffer[this.currentBufferIndex][row][col] + 1) % MODULO;
-    //   // tweak this value to impact rules below
-    //   // (this.buffer[this.currentBufferIndex][row][col] + 1) % MODULO;
-    //   // also eliminate rules to change directions
-    //   //West
-    //   if (col > 0) {
-    //     if (currentBuffer[row][col - 1] === nextValue) {
-    //       console.log('changing cell');
-    //       return true;
-    //     }
-    //   }
+    for (let row = 0; row < this.height; row += 1) {
+      for (let col = 0; col < this.width; col += 1) {
+        let neighborCount = (countOfNeighbors.bind(this))(row, col);
 
-    //   // North
-    //   if (row > 0) {
-    //     if (currentBuffer[row - 1][col] === nextValue) {
-    //       return true;
-    //     }
-    //   }
+        let activeCell = activeBuffer[row][col];
 
-    //   // East
-    //   if (col < this.width - 1) {
-    //     if (currentBuffer[row][col + 1] === nextValue) {
-    //       return true;
-    //     }
-    //   }
+        if (activeCell === 1) {
+          if (neighborCount < 2 || neighborCount > 3) {
+            offBuffer[row][col] = 0;
+          } else {
+            offBuffer[row][col] = 1;
+          }
+        } else {
+          if (neighborCount === 3) {
+            offBuffer[row][col] = 1;
+          } else {
+            offBuffer[row][col] = 0;
+          }
+        }
+      }
+    }
 
-    //   // South
-    //   if (row < this.height - 1) {
-    //     if (currentBuffer[row + 1][col] === nextValue) {
-    //       return true;
-    //     }
-    //   }
-
-    //   //if no neighbers can infect this cell
-    //   return false;
-    // }
-
-    // for (let row = 0; row < this.height; row++) {
-    //   for (let col = 0; col < this.width; col++) {
-    //     if (hasInfectionsNeighbor.call(this, row, col)) {
-    //       //console.log("changing color");
-    //       backBuffer[row][col] = (currentBuffer[row][col] + 1) % MODULO;
-    //     } else {
-    //       backBuffer[row][col] = currentBuffer[row][col];
-    //     }
-    //   }
-    // }
-
-    this.currentBufferIndex = this.currentBufferIndex === 0 ? 1 : 0;
-    //console.log("after changing buffer index, ", this.currentBufferIndex);
+    this.activeBufferIdx = this.activeBufferIdx === 0 ? 1 : 0;
   }
 }
 

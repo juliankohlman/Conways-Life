@@ -17,20 +17,20 @@ class LifeCanvas extends Component {
   }
 
   handleAnimation() {
-    let width = this.props.width;
-    let height = this.props.height;
+    const width = this.props.width;
+    const height = this.props.height;
 
-    let cells = this.life.getCells();
-    let canvas = this.refs.canvas;
-    let ctx = canvas.getContext('2d');
-    let imageData = ctx.getImageData(0, 0, width, height);
+    const cells = this.life.getCells();
+    const canvas = this.refs.canvas;
+    const ctx = canvas.getContext('2d');
+    const imageData = ctx.getImageData(0, 0, width, height);
 
     for (let col = 0; col < height; col += 1) {
       for (let row = 0; row < width; row += 1) {
-        let index = (col * width + row) * 4;
+        const index = (col * width + row) * 4;
 
-        let status = cells[col][row];
-        let color = status === 0 ? 0x00 : 0xff;
+        const status = cells[col][row];
+        const color = status === 0 ? 0x00 : 0xff;
 
         imageData.data[index + 0] = color; // R
         imageData.data[index + 1] = color; // G
@@ -44,7 +44,6 @@ class LifeCanvas extends Component {
     this.life.step();
 
     // requestAnimationFrame(() => this.handleAnimation());
-
   }
 
   render() {
@@ -53,6 +52,13 @@ class LifeCanvas extends Component {
         ref="canvas"
         width={this.props.width}
         height={this.props.height}
+        style={{
+          border: '2px solid black',
+          display: 'block',
+          margin: 'auto',
+          marginTop: '200px',
+          padding: 0,
+        }}
       />
     );
   }
@@ -60,7 +66,7 @@ class LifeCanvas extends Component {
 
 const LifeApp = () => (
   <div>
-    <LifeCanvas width={400} height={300} />
+    <LifeCanvas width={600} height={425} />
   </div>
 );
 
